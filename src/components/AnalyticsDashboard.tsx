@@ -148,8 +148,11 @@ const { data: redemptions, error: redError } = await supabase
   .from('reward_redemptions')
   .select('id')
   .eq('restaurant_id', restaurantId)
-  .gte('created_at', monthStart.toISOString())
-  .lte('created_at', monthEnd.toISOString());
+  .gte('redeemed_at', start.toISOString())  // replaced created_at → redeemed_at
+  .lte('redeemed_at', end.toISOString());   // replaced created_at → redeemed_at
+
+if (redError) throw redError;
+
 
 
     if (redError) throw redError;
