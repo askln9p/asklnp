@@ -172,8 +172,6 @@ export class RewardService {
     }
   }
 
-  static async redeemReward(restaurantId: string, customerId: string, rewardId: string): Promise<RewardRedemption> {
-  }
   static async redeemReward(restaurantId: string, customerId: string, rewardId: string, branchId?: string): Promise<RewardRedemption> {
     if (!restaurantId) {
       throw new Error('Restaurant not found');

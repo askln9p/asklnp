@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { SubscriptionService } from '../services/subscriptionService';
 import { useAuth } from '../contexts/AuthContext';
-import { 
-  Home, Users, Gift, Settings, LogOut, Menu, X, ChefHat, MapPin, 
-  Headphones as HeadphonesIcon, Wallet, BarChart3, Crown, Clock, 
-  ArrowRight, CreditCard, ChevronLeft, ChevronRight 
+import {
+  Home, Users, Gift, Settings, LogOut, Menu, X, ChefHat, MapPin,
+  Headphones as HeadphonesIcon, Wallet, BarChart3, Crown, Clock,
+  ArrowRight, CreditCard, ChevronLeft, ChevronRight, TrendingUp
 } from 'lucide-react';
 
 export default function DashboardLayout() {
@@ -126,7 +126,8 @@ export default function DashboardLayout() {
     { name: 'Branches', href: '/dashboard/branches', icon: MapPin },
     { name: 'Loyalty Config', href: '/dashboard/loyalty-config', icon: Settings },
     { name: 'Billing', href: '/dashboard/billing', icon: CreditCard },
-    { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+    { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
+    { name: 'ROI Analysis', href: '/dashboard/roi', icon: TrendingUp },
     { name: 'Support', href: '/dashboard/support', icon: HeadphonesIcon },
   ];
 

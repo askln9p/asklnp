@@ -11,7 +11,6 @@ import {
 } from 'recharts';
 import { useDashboardData } from '../hooks/useDashboardData';
 import { useAuth } from '../contexts/AuthContext';
-import LoyaltyROIDashboard from './LoyaltyROIDashboard';
 import LoadingBar from './LoadingBar'; 
 
 
@@ -21,7 +20,6 @@ import { Link } from 'react-router-dom';
 
 const DashboardHome = () => {
   const [timeRange, setTimeRange] = useState('7d');
-  const [showROIDashboard, setShowROIDashboard] = useState(false);
   const { restaurant } = useAuth();
 const [selectedDay, setSelectedDay] = useState<string | null>(null);
 const [hoveredDay, setHoveredDay] = useState<string | null>(null);
@@ -196,20 +194,9 @@ const todayLabel = new Date().toLocaleDateString("en-US", { month: "short", day:
     <>
       <LoadingBar isLoading={loading} />
       <div className="animate-fade-in space-y-6">
-      {/* Time Range Selector */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Dashboard Overview</h1>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowROIDashboard(!showROIDashboard)}
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-              showROIDashboard 
-                ? 'bg-gradient-to-r from-[#E6A85C] via-[#E85A9B] to-[#D946EF] text-white' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            {showROIDashboard ? 'Overview' : 'ROI Analysis'}
-          </button>
           <select 
             value={timeRange}
             onChange={(e) => setTimeRange(e.target.value)}
@@ -228,11 +215,6 @@ const todayLabel = new Date().toLocaleDateString("en-US", { month: "short", day:
         </div>
       </div>
 
-      {/* Show ROI Dashboard or Regular Dashboard */}
-      {showROIDashboard ? (
-        <LoyaltyROIDashboard timeRange={timeRange} />
-      ) : (
-        <>
 {/* Enhanced Stats Grid */}
 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
   {stats.map((stat, index) => {
@@ -560,64 +542,58 @@ const todayLabel = new Date().toLocaleDateString("en-US", { month: "short", day:
         <div className="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Revenue Trends</h2>
-              <p className="text-sm text-gray-500">Monthly revenue breakdown and loyalty program impact</p>
-            </div>
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#1E2A78]" />
-                <span className="text-gray-600">Total Revenue</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#3B82F6]" />
-                <span className="text-gray-600">Loyalty Revenue</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#10B981]" />
-                <span className="text-gray-600">Net Profit</span>
-              </div>
+              <h2 className="text-lg font-semibold text-gray-900">Revenue Growth</h2>
+              <p className="text-sm text-gray-500">Monthly revenue performance over time</p>
             </div>
           </div>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={monthlyTrends}>
+              <AreaChart data={monthlyTrends}>
+                <defs>
+                  <linearGradient id="colorRevenueTrend" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis 
-                  dataKey="month" 
+                <XAxis
+                  dataKey="month"
                   axisLine={false}
                   tickLine={false}
-                  className="text-sm text-gray-500"
+                  tick={{ fill: '#9CA3AF', fontSize: 12 }}
                 />
-                <YAxis 
+                <YAxis
                   axisLine={false}
                   tickLine={false}
-                  className="text-sm text-gray-500"
-                  tickFormatter={(value) => `$${value}`}
+                  tick={{ fill: '#9CA3AF', fontSize: 12 }}
+                  tickFormatter={(value) => `$${value.toLocaleString()}`}
                 />
-                <Tooltip content={renderCustomTooltip} />
-                <Bar 
-                  dataKey="revenue" 
-                  fill="#E6A85C" 
-                  radius={[4, 4, 0, 0]}
-                  name="Total Revenue ($)"
-                  animationDuration={800}
+                <Tooltip
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+                          <p className="font-medium text-gray-900 mb-1">{label}</p>
+                          <p className="text-sm text-green-600">
+                            Revenue: {formatCurrency(payload[0].value as number)}
+                          </p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
                 />
-                <Bar 
-                  dataKey="loyaltyRevenue" 
-                  fill="#E85A9B" 
-                  radius={[4, 4, 0, 0]}
-                  name="Loyalty Revenue ($)"
+                <Area
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#10B981"
+                  strokeWidth={2}
+                  fillOpacity={1}
+                  fill="url(#colorRevenueTrend)"
+                  name="Total Revenue"
                   animationDuration={1000}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="netProfit" 
-                  stroke="#D946EF" 
-                  strokeWidth={3}
-                  name="Net Profit ($)"
-                  animationDuration={1200}
-                />
-              </ComposedChart>
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
@@ -759,8 +735,6 @@ const todayLabel = new Date().toLocaleDateString("en-US", { month: "short", day:
   </div>
 )}
 
-        </>
-      )}
       </div>
     </>
   );
