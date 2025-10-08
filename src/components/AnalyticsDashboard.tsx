@@ -135,12 +135,22 @@ const AnalyticsDashboard: React.FC = () => {
 
     if (transError) throw transError;
 
-    const { data: redemptions, error: redError } = await supabase
-      .from('reward_redemptions')
-      .select('id')
-      .eq('restaurant_id', restaurantId)
-      .gte('created_at', start.toISOString())
-      .lte('created_at', end.toISOString());
+// Ensure start/end dates are always valid UTC timestamps
+const monthStart = new Date(Date.UTC(start.getFullYear(), start.getMonth(), start.getDate(), 0, 0, 0));
+const monthEnd = new Date(Date.UTC(end.getFullYear(), end.getMonth(), end.getDate(), 23, 59, 59));
+
+console.log("Fetching redemptions with:", {
+  start: monthStart.toISOString(),
+  end: monthEnd.toISOString()
+});
+
+const { data: redemptions, error: redError } = await supabase
+  .from('reward_redemptions')
+  .select('id')
+  .eq('restaurant_id', restaurantId)
+  .gte('created_at', monthStart.toISOString())
+  .lte('created_at', monthEnd.toISOString());
+
 
     if (redError) throw redError;
 
