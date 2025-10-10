@@ -134,20 +134,20 @@ const CustomersPage: React.FC = () => {
           break;
       }
     }
+filtered.sort((a, b) => {
+  switch (sortBy) {
+    case 'points':
+      return b.total_points - a.total_points;
+    case 'spent':
+      return b.total_spent - a.total_spent;
+    case 'visits':
+      return b.visit_count - a.visit_count;
+    case 'recent':
+    default:
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  }
+});
 
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'points':
-          return b.total_points - a.total_points;
-        case 'spent':
-          return b.total_spent - a.total_spent;
-        case 'visits':
-          return b.visit_count - a.visit_count;
-        case 'recent':
-        default:
-          return new Date(b.created_at).getTime() - new Date(c.created_at).getTime();
-      }
-    });
 
     setFilteredCustomers(filtered);
   };
