@@ -71,31 +71,32 @@ const AnalyticsDashboard: React.FC = () => {
       setError(null);
 
       const monthsToFetch = timeRange === '6m' ? 6 : timeRange === '12m' ? 12 : 24;
-      const months: MonthlyMetrics[] = [];
 
+      const monthPromises = [];
       for (let i = monthsToFetch - 1; i >= 0; i--) {
         const date = new Date();
         date.setMonth(date.getMonth() - i);
         const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
         const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59);
 
-        const metrics = await getMonthMetrics(restaurant.id, monthStart, monthEnd);
-
-        months.push({
-          month: date.toLocaleDateString('en-US', { month: 'short' }),
-          year: date.getFullYear(),
-          customerCount: metrics.customers,
-          newCustomers: metrics.newCustomers,
-          returningCustomers: metrics.returningCustomers,
-          revenue: metrics.revenue,
-          pointsIssued: metrics.pointsIssued,
-          pointsRedeemed: metrics.pointsRedeemed,
-          rewardsRedeemed: metrics.rewardsRedeemed,
-          averageOrderValue: metrics.averageOrderValue,
-          retentionRate: metrics.retentionRate
-        });
+        monthPromises.push(
+          getMonthMetrics(restaurant.id, monthStart, monthEnd).then(metrics => ({
+            month: date.toLocaleDateString('en-US', { month: 'short' }),
+            year: date.getFullYear(),
+            customerCount: metrics.customers,
+            newCustomers: metrics.newCustomers,
+            returningCustomers: metrics.returningCustomers,
+            revenue: metrics.revenue,
+            pointsIssued: metrics.pointsIssued,
+            pointsRedeemed: metrics.pointsRedeemed,
+            rewardsRedeemed: metrics.rewardsRedeemed,
+            averageOrderValue: metrics.averageOrderValue,
+            retentionRate: metrics.retentionRate
+          }))
+        );
       }
 
+      const months = await Promise.all(monthPromises);
       setMonthlyData(months);
     } catch (err: any) {
       console.error('Error fetching monthly analytics:', err);
@@ -114,27 +115,28 @@ const AnalyticsDashboard: React.FC = () => {
 
       const currentYear = new Date().getFullYear();
       const yearsToFetch = 5;
-      const years: YearlyMetrics[] = [];
 
+      const yearPromises = [];
       for (let i = 0; i < yearsToFetch; i++) {
         const year = currentYear - i;
         const yearStart = new Date(year, 0, 1);
         const yearEnd = new Date(year, 11, 31, 23, 59, 59);
 
-        const metrics = await getMonthMetrics(restaurant.id, yearStart, yearEnd);
-
-        years.push({
-          year,
-          customerCount: metrics.customers,
-          revenue: metrics.revenue,
-          pointsIssued: metrics.pointsIssued,
-          pointsRedeemed: metrics.pointsRedeemed,
-          rewardsRedeemed: metrics.rewardsRedeemed,
-          averageOrderValue: metrics.averageOrderValue,
-          retentionRate: metrics.retentionRate
-        });
+        yearPromises.push(
+          getMonthMetrics(restaurant.id, yearStart, yearEnd).then(metrics => ({
+            year,
+            customerCount: metrics.customers,
+            revenue: metrics.revenue,
+            pointsIssued: metrics.pointsIssued,
+            pointsRedeemed: metrics.pointsRedeemed,
+            rewardsRedeemed: metrics.rewardsRedeemed,
+            averageOrderValue: metrics.averageOrderValue,
+            retentionRate: metrics.retentionRate
+          }))
+        );
       }
 
+      const years = await Promise.all(yearPromises);
       setYearlyData(years.reverse());
     } catch (err: any) {
       console.error('Error fetching yearly analytics:', err);
@@ -175,7 +177,7 @@ const AnalyticsDashboard: React.FC = () => {
     if (redError) throw redError;
 
     const revenue = allActiveCustomers.reduce((sum, c) => sum + c.total_spent, 0);
-    const pointsIssued = transactions.filter(t => t.type === 'earn' && t.points > 0).reduce((sum, t) => sum + t.points, 0);
+    const pointsIssued = transactions.filter(t => (t.type === 'purchase' || t.type === 'signup' || t.type === 'bonus' || t.type === 'referral') && t.points > 0).reduce((sum, t) => sum + t.points, 0);
     const pointsRedeemed = transactions.filter(t => t.type === 'redemption').reduce((sum, t) => sum + Math.abs(t.points), 0);
     const totalOrders = allActiveCustomers.reduce((sum, c) => sum + c.visit_count, 0);
     const returningCustomers = allActiveCustomers.filter(c => c.visit_count > 1).length;

@@ -664,15 +664,15 @@ const todayLabel = new Date().toLocaleDateString("en-US", { month: "short", day:
           <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
           <p className="text-sm text-gray-500">Latest customer interactions</p>
         </div>
-        <button
-          onClick={() => navigate('/customers')}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg 
-                     bg-gradient-to-r from-[#E6A85C] via-[#E85A9B] to-[#D946EF] 
+        <Link
+          to="/dashboard/customers"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg
+                     bg-gradient-to-r from-[#E6A85C] via-[#E85A9B] to-[#D946EF]
                      text-white shadow-sm hover:shadow-md transition-all duration-200"
         >
           <Eye className="h-4 w-4" />
           View All
-        </button>
+        </Link>
       </div>
     </div>
 

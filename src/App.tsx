@@ -27,6 +27,7 @@ import BillingPage from './components/BillingPage';
 import LoadingBar from './components/LoadingBar';
 import AnalyticsDashboard from './components/AnalyticsDashboard';
 import LoyaltyROIDashboard from './components/LoyaltyROIDashboard';
+import CustomersPage from './components/CustomersPage';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
@@ -137,7 +138,7 @@ function App() {
             }
           >
             <Route index element={<DashboardHome />} />
-            <Route path="customers" element={<div className="p-8 text-center text-gray-500">Customers page coming soon...</div>} />
+            <Route path="customers" element={<CustomersPage />} />
             <Route path="rewards" element={<RewardsPage />} />
             <Route path="menu-items" element={<MenuItemsPage />} />
             <Route path="loyalty-config" element={<LoyaltyConfigPage />} />
